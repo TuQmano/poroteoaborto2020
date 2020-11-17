@@ -1,0 +1,64 @@
+---
+title: "Poroteo Aborto 2020"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(gsheet)
+library(tidyverse)
+library(DT)
+```
+
+```{r,include=FALSE}
+
+url <- "https://docs.google.com/spreadsheets/d/1TUTag7Majqhn5noRLLMUJ6SFJ0Phwlo-Oc1T59uSZCE/edit#gid=0"
+
+a <- gsheet2text(url, format='csv')
+
+df <- read_csv(a,skip = 1)
+
+df <- df %>% 
+  filter(!is.na(Cargo))
+```
+
+
+-----------------------------------------------------------------------
+
+# Resumen
+
+```{r}
+df %>% 
+  group_by(Cargo, AbortoLegal) %>% count() %>% 
+  ggplot(aes(AbortoLegal, n, fill=AbortoLegal))+
+  geom_col()+
+  coord_flip()+
+  theme(legend.position = 'bottom')+
+  facet_wrap(Cargo~., scales = 'free')
+```
+
+-----------------------------------------------------------------------
+# Diputados
+
+```{r}
+table_diputados <- df %>% 
+  filter(Cargo == 'Diputados Nacionales') %>% 
+  select(Nombre, Genero,Distrito,Bloque,AbortoLegal, FuenteAbortoLegal,twitter)
+
+datatable(table_diputados ,options = list(c(scrollY="200px", scrollX="300px", pageLength = 100)),  filter = 'top')
+
+```
+
+# Senadores
+
+```{r}
+table_senadores <- df %>% 
+  filter(Cargo == 'Senadores Nacionales') %>% 
+  select(Nombre, Genero,Distrito,Bloque,AbortoLegal, FuenteAbortoLegal,twitter)
+
+datatable(table_senadores ,options = list(c(scrollY="200px", scrollX="300px", pageLength = 100)),  filter = 'top')
+
+```
