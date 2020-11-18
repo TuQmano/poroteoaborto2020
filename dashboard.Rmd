@@ -21,8 +21,10 @@ output:
 library(flexdashboard)
 library(gsheet)
 library(tidyverse)
+library(ggthemes)
 library(DT)
 library(plotly)
+library(janitor)
 ```
 
 ```{r,include=FALSE}
@@ -34,28 +36,29 @@ a <- gsheet2text(url, format='csv')
 df <- read_csv(a,skip = 1)
 
 df <- df %>% 
-  filter(!is.na(Cargo))
+  filter(!is.na(Cargo)) %>% 
+  mutate(AbortoLegal = str_to_title(AbortoLegal))
 ```
 
-
------------------------------------------------------------------------
-
-# Resumen
-
-```{r message=FALSE, warning=FALSE}
-p1 <- df %>% 
-  group_by(Cargo, AbortoLegal) %>% count() %>% 
-  ggplot(aes(AbortoLegal, n, fill=AbortoLegal))+
-  geom_col()+
-  coord_flip()+
-  theme(legend.position = 'bottom')+
-  facet_wrap(Cargo~., scales = 'free')
-
-ggplotly(p1)
-```
 
 -----------------------------------------------------------------------
 # Diputados
+
+
+```{r message=FALSE, warning=FALSE}
+p1 <- df %>% 
+  filter(str_detect(Cargo, 'Diputados')) %>% 
+  tabyl(AbortoLegal) %>% 
+  adorn_pct_formatting() %>% 
+  ggplot(aes(AbortoLegal, n,label=percent, fill=AbortoLegal, text=paste(AbortoLegal,
+                                                          '<br>',n,'(',percent,')')))+
+  geom_col()+
+  coord_flip()+
+  scale_fill_gdocs()+
+  theme(legend.position = 'none')
+
+ggplotly(p1, tooltip =  c("text"))
+```
 
 ```{r}
 table_diputados <- df %>% 
@@ -67,6 +70,21 @@ datatable(table_diputados ,options = list(c(scrollY="200px", scrollX="300px", pa
 ```
 
 # Senadores
+
+```{r message=FALSE, warning=FALSE}
+p1 <- df %>% 
+  filter(str_detect(Cargo, 'Senadores')) %>% 
+  tabyl(AbortoLegal) %>% 
+  adorn_pct_formatting() %>% 
+  ggplot(aes(AbortoLegal, n,label=percent, fill=AbortoLegal, text=paste(AbortoLegal,
+                                                          '<br>',n,'(',percent,')')))+
+  geom_col()+
+  coord_flip()+
+  scale_fill_gdocs()+
+  theme(legend.position = 'none')
+
+ggplotly(p1, tooltip =  c("text"))
+```
 
 ```{r}
 table_senadores <- df %>% 
