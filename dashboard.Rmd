@@ -6,6 +6,17 @@ output:
     vertical_layout: fill
 ---
 
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N1GX94R8R8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N1GX94R8R8');
+</script>
+</head> 
+
 ```{r setup, include=FALSE}
 library(flexdashboard)
 library(gsheet)
