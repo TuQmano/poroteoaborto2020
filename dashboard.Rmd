@@ -22,6 +22,7 @@ library(flexdashboard)
 library(gsheet)
 library(tidyverse)
 library(DT)
+library(plotly)
 ```
 
 ```{r,include=FALSE}
@@ -41,14 +42,16 @@ df <- df %>%
 
 # Resumen
 
-```{r}
-df %>% 
+```{r message=FALSE, warning=FALSE}
+p1 <- df %>% 
   group_by(Cargo, AbortoLegal) %>% count() %>% 
   ggplot(aes(AbortoLegal, n, fill=AbortoLegal))+
   geom_col()+
   coord_flip()+
   theme(legend.position = 'bottom')+
   facet_wrap(Cargo~., scales = 'free')
+
+ggplotly(p1)
 ```
 
 -----------------------------------------------------------------------
