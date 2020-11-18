@@ -41,9 +41,10 @@ df <- df %>%
 ```
 
 
------------------------------------------------------------------------
+
 # Diputados
 
+### Resumen
 
 ```{r message=FALSE, warning=FALSE}
 p1 <- df %>% 
@@ -53,12 +54,14 @@ p1 <- df %>%
   ggplot(aes(AbortoLegal, n,label=percent, fill=AbortoLegal, text=paste(AbortoLegal,
                                                           '<br>',n,'(',percent,')')))+
   geom_col()+
-  coord_flip()+
   scale_fill_gdocs()+
   theme(legend.position = 'none')
 
 ggplotly(p1, tooltip =  c("text"))
 ```
+
+
+### Tabla
 
 ```{r}
 table_diputados <- df %>% 
@@ -71,6 +74,8 @@ datatable(table_diputados ,options = list(c(scrollY="200px", scrollX="300px", pa
 
 # Senadores
 
+### Resumen
+
 ```{r message=FALSE, warning=FALSE}
 p1 <- df %>% 
   filter(str_detect(Cargo, 'Senadores')) %>% 
@@ -79,12 +84,14 @@ p1 <- df %>%
   ggplot(aes(AbortoLegal, n,label=percent, fill=AbortoLegal, text=paste(AbortoLegal,
                                                           '<br>',n,'(',percent,')')))+
   geom_col()+
-  coord_flip()+
   scale_fill_gdocs()+
   theme(legend.position = 'none')
 
 ggplotly(p1, tooltip =  c("text"))
 ```
+
+
+### Tabla
 
 ```{r}
 table_senadores <- df %>% 
