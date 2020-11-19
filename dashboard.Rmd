@@ -2,10 +2,9 @@
 title: "Poroteo Aborto 2020"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: columns
-    vertical_layout: fill
+    orientation: rows
+    css: style.css
 ---
-
 <head>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-N1GX94R8R8"></script>
@@ -28,7 +27,6 @@ library(janitor)
 ```
 
 ```{r,include=FALSE}
-
 url <- "https://docs.google.com/spreadsheets/d/1TUTag7Majqhn5noRLLMUJ6SFJ0Phwlo-Oc1T59uSZCE/edit#gid=0"
 
 a <- gsheet2text(url, format='csv')
@@ -38,30 +36,114 @@ df <- read_csv(a,skip = 1)
 df <- df %>% 
   filter(!is.na(Cargo)) %>% 
   mutate(AbortoLegal = str_to_title(AbortoLegal))
-```
 
-
-
-# Diputados
-
-### Resumen
-
-```{r message=FALSE, warning=FALSE}
-p1 <- df %>% 
+conteo_diputados <- df %>% 
   filter(str_detect(Cargo, 'Diputados')) %>% 
+  mutate(AbortoLegal = case_when(AbortoLegal == "Despenalizar" ~ "A Favor",
+                                 AbortoLegal == "Se Abstiene"  ~ "Se Abstiene / Caso Especial",
+                                 AbortoLegal == "Indefinido" |  
+                                   AbortoLegal == "Sin Datos"  ~ "Sin Datos / Indefinido",
+                                 TRUE ~ AbortoLegal)) %>% 
   tabyl(AbortoLegal) %>% 
   adorn_pct_formatting() %>% 
-  ggplot(aes(AbortoLegal, n,label=percent, fill=AbortoLegal, text=paste(AbortoLegal,
-                                                          '<br>',n,'(',percent,')')))+
-  geom_col()+
-  scale_fill_gdocs()+
-  theme(legend.position = 'none')
+  adorn_totals("row")
+ 
+conteo_senadores <- df %>% 
+  filter(str_detect(Cargo, 'Senadores')) %>% 
+  mutate(AbortoLegal = case_when(AbortoLegal == "Despenalizar" ~ "A Favor",
+                                 AbortoLegal == "Se Abstiene"  ~ "Se Abstiene / Caso Especial",
+                                 AbortoLegal == "Indefinido" |  
+                                   AbortoLegal == "Sin Datos"  ~ "Sin Datos / Indefinido",
+                                 TRUE ~ AbortoLegal)) %>%   
+  tabyl(AbortoLegal) %>% 
+  adorn_pct_formatting() %>% 
+  adorn_totals("row")
+```
 
-ggplotly(p1, tooltip =  c("text"))
+# Inicio
+
+Row {data-height=650}
+-------------------------------------
+
+### Cámara de Diputades
+
+```{r}
+# highchart parliament de Dai
+```
+
+Row {data-height=350}
+-------------------------------------
+   
+### A favor / Despenalizar
+
+```{r}
+dip_si <- conteo_diputados %>% 
+  filter(AbortoLegal == 'A Favor')
+
+valueBox(dip_si$n, color = "#00A759")
+```   
+    
+### En contra
+
+```{r}
+dip_no <- conteo_diputados %>% 
+  filter(AbortoLegal == 'En Contra')
+
+valueBox(dip_no$n, color = "#a70600")
+```
+
+###
+
+
+```{r}
+ knitr::kable(conteo_diputados %>% 
+  filter(!AbortoLegal %in% c('A Favor', 'En Contra')), col.names = NULL)
 ```
 
 
-### Tabla
+Row {data-height=650}
+-------------------------------------
+
+### Cámara de Senadores
+
+```{r}
+# highchart parliament de Dai
+```
+
+Row {data-height=350}
+-------------------------------------
+   
+### A favor / Despenalizar
+
+```{r}
+sen_si <- conteo_senadores %>% 
+  filter(AbortoLegal == 'A Favor')
+
+valueBox(sen_si$n, color = "#00A759")
+```   
+    
+### En contra
+
+```{r}
+sen_no <- conteo_senadores %>% 
+  filter(AbortoLegal == 'En Contra')
+
+valueBox(sen_no$n, color = "#a70600")
+```
+
+### 
+
+```{r}
+ knitr::kable(conteo_senadores %>% 
+  filter(!AbortoLegal %in% c('A Favor', 'En Contra')), col.names = NULL)
+```
+
+# Gráficos
+
+Acá irían subpestañas para los gráficos según: Género, Bloque, Provincia (los esta haciendo el TuQ)
+
+
+# Datos Diputados
 
 ```{r}
 table_diputados <- df %>% 
@@ -72,26 +154,7 @@ datatable(table_diputados ,options = list(c(scrollY="200px", scrollX="300px", pa
 
 ```
 
-# Senadores
-
-### Resumen
-
-```{r message=FALSE, warning=FALSE}
-p1 <- df %>% 
-  filter(str_detect(Cargo, 'Senadores')) %>% 
-  tabyl(AbortoLegal) %>% 
-  adorn_pct_formatting() %>% 
-  ggplot(aes(AbortoLegal, n,label=percent, fill=AbortoLegal, text=paste(AbortoLegal,
-                                                          '<br>',n,'(',percent,')')))+
-  geom_col()+
-  scale_fill_gdocs()+
-  theme(legend.position = 'none')
-
-ggplotly(p1, tooltip =  c("text"))
-```
-
-
-### Tabla
+# Datos Senadores
 
 ```{r}
 table_senadores <- df %>% 
@@ -101,3 +164,7 @@ table_senadores <- df %>%
 datatable(table_senadores ,options = list(c(scrollY="200px", scrollX="300px", pageLength = 100)),  filter = 'top')
 
 ```
+
+# Nosotres
+
+(Link a la planilla abortera, nuestros contactos, etc.)
