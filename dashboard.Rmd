@@ -17,13 +17,15 @@ output:
 </head> 
 
 ```{r setup, include=FALSE}
-library(flexdashboard)
-library(gsheet)
-library(tidyverse)
-library(ggthemes)
-library(DT)
-library(plotly)
-library(janitor)
+library(flexdashboard) # R Markdown Format for Flexible Dashboards, CRAN v0.5.2
+library(gsheet) # Download Google Sheets Using Just the URL, CRAN v0.4.5
+library(tidyverse) # Easily Install and Load the 'Tidyverse', CRAN v1.3.0
+library(ggthemes) # Extra Themes, Scales and Geoms for 'ggplot2', CRAN v4.2.0
+library(DT) # A Wrapper of the JavaScript Library 'DataTables', CRAN v0.15
+library(plotly) # Create Interactive Web Graphics via 'plotly.js', CRAN v4.9.2.1
+library(janitor) # Simple Tools for Examining and Cleaning Dirty Data, CRAN v2.0.1
+library(polAr) # Argentina Political Analysis, CRAN v0.2.0
+library(geofacet) # 'ggplot2' Faceting Utilities for Geographical Data, CRAN v0.2.0 
 ```
 
 ```{r,include=FALSE}
@@ -143,6 +145,147 @@ valueBox(sen_no$n, color = "#a70600")
 Acá irían subpestañas para los gráficos según: Género, Bloque, Provincia (los esta haciendo el TuQ)
 
 
+## PROVINCIAS
+
+```{r wragnle_df, echo=FALSE}
+
+# AGREGO codprov COMO VARIABLE PARA JOIN NECESARIO CON GEOFACET
+df <- df %>% 
+  mutate(Distrito = str_to_upper(Distrito), 
+         codprov = case_when(
+           str_detect(Distrito, "JUJ")  ~ "10",
+           str_detect(Distrito, "FORM")  ~ "09",
+           str_detect(Distrito, "MISI")  ~ "14",
+           str_detect(Distrito, "SALT")  ~ "17",
+           str_detect(Distrito, "TUCU")  ~ "23",
+           str_detect(Distrito, "CATAM")  ~ "03",
+           str_detect(Distrito, "CHAC")  ~ "06",
+           str_detect(Distrito, "CORR")  ~ "05",
+           str_detect(Distrito, "ESTER")  ~ "22",
+           str_detect(Distrito, "RDOBA")  ~ "04",
+           str_detect(Distrito, "ENTRE")  ~ "08",
+           str_detect(Distrito, "OJA")  ~ "12",
+           str_detect(Distrito, "FE")  ~ "21",
+           str_detect(Distrito, "NOMA")  ~ "01",
+           str_detect(Distrito, "JUAN")  ~ "18",
+           str_detect(Distrito, "LUIS")  ~ "19",
+           str_detect(Distrito, "PAMP")  ~ "11",
+           str_detect(Distrito, "MEN")  ~ "13",
+           str_detect(Distrito, "NEU")  ~ "15",
+           str_detect(Distrito, "NEGR")  ~ "16",
+           str_detect(Distrito, "CHUB")  ~ "07",
+           str_detect(Distrito, "CRUZ")  ~ "20",
+           str_detect(Distrito, "FUEG")  ~ "24", 
+           TRUE ~ "02" # pba
+         ))
+
+# AGREGO CONTEO DE n() DIPUTADOS PARA LABELS
+
+ dipu_label <- df %>%  # FILTRO DIPUTADOS
+  filter(str_detect(Cargo, "Dip")) %>%  # CONTEO DE DIPUTADES x PROVINCIA PARA LABELS
+  group_by(codprov) %>% 
+  count()
+
+
+ 
+ 
+arg <- get_grid("ARGENTINA") %>% 
+  left_join(dipu_label, by = c("code" = "codprov")) %>% 
+  mutate(name = str_replace_all(name, 
+                                pattern = " ", 
+                                replacement = "\n"), 
+         name_dip = paste0(name , " (", n , ")"))  # DESCARGO GRILLA DE ARGENTINA PARA GEOFACET
+  
+ 
+ 
+
+```
+
+
+
+### DIPUTADES POR PROVINCIA
+
+
+```{r geofacet_DIP, fig.height= 14, fig.width=7}
+
+arg2 <- arg %>% 
+  transmute(row, col, code, name = name_dip)
+
+DIP <-   df %>%  # FILTRO DIPUTADOS
+  clean_names() %>% 
+  filter(str_detect(cargo, "Dip")) 
+
+dip_pct <- DIP %>%  # DATA PARA PLOT 
+  group_by(codprov, aborto_legal) %>% 
+  summarise(n = n()) %>% 
+  mutate(pct = round(n/sum(n)*100,1)) 
+
+
+
+### GEOFACET - DIPUTADOS 
+
+ggplot(dip_pct) +
+  geom_col(aes(pct, '',  fill = aborto_legal), width = 1, alpha = .7)  +
+  scale_fill_manual(values = c("#056e0c", "#62b567", "#941017", "#626c9e", "#000000", "#626c9e")) + #REVISAR PALETA DE COLORES
+  facet_geo(facets = ~ codprov , grid = arg2, label = "name") +
+  scale_x_continuous(breaks = c(0,50,100),
+                     labels = c("0","50","100"),
+                     expand = c(0, 0)) + 
+  coord_flip() +
+  geom_vline(xintercept = 50, color = "black", linetype = "dashed") +
+  labs(title = "",
+       subtitle = "", 
+       x="",
+       y="", 
+       fill = "", 
+       caption = "") +
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(), plot.margin = unit(c(0,-2 ,-6,-6), "mm"))  
+
+
+
+```
+
+
+### SENADORES POR PROVINCIA
+
+```{r geofacet_SEN, fig.asp= 2}
+arg <- arg %>% 
+  transmute(row, col, code, name)
+
+SEN <- df %>%  # FILTRO SENADORES
+  clean_names() %>% 
+  filter(str_detect(cargo, "Sen")) 
+
+sen_pct <- SEN %>% # DATA PARA PLOT
+  group_by(distrito, codprov, aborto_legal) %>% 
+  summarise(n = n()) %>% 
+  mutate(pct = round(n/sum(n)*100,1)) 
+
+# GEOFACET SENADORES 
+
+ggplot(sen_pct) +
+  geom_col(aes(pct, '',  fill = aborto_legal), width = 1, alpha = .7)  +
+  scale_fill_manual(values = c("#056e0c", "#941017", "#626c9e", "#000000")) + # RESVISAR PALETA
+  facet_geo(facets = ~ codprov , grid = arg, label = "name") +
+  scale_x_continuous(breaks = c(0,50,100),
+                      labels = c("0","50","100"),
+                      expand = c(0, 0)) + 
+  coord_flip() +
+  labs(title = "",
+       subtitle = "", 
+       x="",
+       y="", 
+       fill = "", 
+       caption = "") +
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank()) 
+
+
+
+
+```
+
 # Datos Diputados
 
 ```{r}
@@ -168,3 +311,7 @@ datatable(table_senadores ,options = list(c(scrollY="200px", scrollX="300px", pa
 # Nosotres
 
 (Link a la planilla abortera, nuestros contactos, etc.)
+
+* TuQmano - [github.com/tuqmano](https://github.com/tuqmano)
+
+
