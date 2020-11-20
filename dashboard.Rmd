@@ -26,6 +26,10 @@ library(plotly) # Create Interactive Web Graphics via 'plotly.js', CRAN v4.9.2.1
 library(janitor) # Simple Tools for Examining and Cleaning Dirty Data, CRAN v2.0.1
 library(polAr) # Argentina Political Analysis, CRAN v0.2.0
 library(geofacet) # 'ggplot2' Faceting Utilities for Geographical Data, CRAN v0.2.0 
+library(knitr)
+library(kableExtra)
+library(scales)
+library(glue)
 ```
 
 ```{r,include=FALSE}
@@ -39,28 +43,34 @@ df <- df %>%
   filter(!is.na(Cargo)) %>% 
   mutate(AbortoLegal = str_to_title(AbortoLegal))
 
-conteo_diputados <- df %>% 
-  filter(str_detect(Cargo, 'Diputados')) %>% 
+df_tabla <- df
+
+df <- df %>% 
   mutate(AbortoLegal = case_when(AbortoLegal == "Despenalizar" ~ "A Favor",
                                  AbortoLegal == "Se Abstiene"  ~ "Se Abstiene / Caso Especial",
                                  AbortoLegal == "Indefinido" |  
                                    AbortoLegal == "Sin Datos"  ~ "Sin Datos / Indefinido",
-                                 TRUE ~ AbortoLegal)) %>% 
+                                 TRUE ~ AbortoLegal))
+
+conteo_diputados <- df %>% 
+  filter(str_detect(Cargo, 'Diputados')) %>% 
   tabyl(AbortoLegal) %>% 
   adorn_pct_formatting() %>% 
   adorn_totals("row")
  
 conteo_senadores <- df %>% 
   filter(str_detect(Cargo, 'Senadores')) %>% 
-  mutate(AbortoLegal = case_when(AbortoLegal == "Despenalizar" ~ "A Favor",
-                                 AbortoLegal == "Se Abstiene"  ~ "Se Abstiene / Caso Especial",
-                                 AbortoLegal == "Indefinido" |  
-                                   AbortoLegal == "Sin Datos"  ~ "Sin Datos / Indefinido",
-                                 TRUE ~ AbortoLegal)) %>%   
   tabyl(AbortoLegal) %>% 
   adorn_pct_formatting() %>% 
   adorn_totals("row")
 ```
+
+
+
+```{r colores, include=FALSE}
+colores <- c('A Favor'='#056e0c', 'En Contra'="#941017","Se Abstiene / Caso Especial"="#626c9e", "Sin Datos / Indefinido"='#b0b0b0')
+```
+
 
 # Inicio
 
@@ -82,24 +92,26 @@ Row {data-height=350}
 dip_si <- conteo_diputados %>% 
   filter(AbortoLegal == 'A Favor')
 
-valueBox(dip_si$n, color = "#00A759")
+valueBox(paste0(dip_si$n,' (',dip_si$percent,')'), color = "#00A759")
 ```   
     
+###
+
+
+```{r}
+conteo_diputados %>% 
+  filter(!AbortoLegal %in% c('A Favor', 'En Contra')) %>% 
+  kable('html', col.names = NULL) %>%
+  kable_styling(font_size = 18)
+```
+
 ### En contra
 
 ```{r}
 dip_no <- conteo_diputados %>% 
   filter(AbortoLegal == 'En Contra')
 
-valueBox(dip_no$n, color = "#a70600")
-```
-
-###
-
-
-```{r}
- knitr::kable(conteo_diputados %>% 
-  filter(!AbortoLegal %in% c('A Favor', 'En Contra')), col.names = NULL)
+valueBox(paste0(dip_no$n,' (',dip_no$percent,')'), color = "#a70600")
 ```
 
 
@@ -121,31 +133,33 @@ Row {data-height=350}
 sen_si <- conteo_senadores %>% 
   filter(AbortoLegal == 'A Favor')
 
-valueBox(sen_si$n, color = "#00A759")
-```   
-    
+valueBox(paste0(sen_si$n,' (',sen_si$percent,')'), color = "#00A759")
+```
+
+
+### 
+
+```{r}
+conteo_senadores %>% 
+  filter(!AbortoLegal %in% c('A Favor', 'En Contra')) %>% 
+  kable('html', col.names = NULL) %>%
+  kable_styling(font_size = 18)
+```
+
+
 ### En contra
 
 ```{r}
 sen_no <- conteo_senadores %>% 
   filter(AbortoLegal == 'En Contra')
 
-valueBox(sen_no$n, color = "#a70600")
+valueBox(paste0(sen_no$n,' (',sen_no$percent,')'), color = "#a70600")
 ```
 
-### 
-
-```{r}
- knitr::kable(conteo_senadores %>% 
-  filter(!AbortoLegal %in% c('A Favor', 'En Contra')), col.names = NULL)
-```
 
 # Gráficos
 
-Acá irían subpestañas para los gráficos según: Género, Bloque, Provincia (los esta haciendo el TuQ)
-
-
-## PROVINCIAS
+## Gráficos{.tabset}
 
 ```{r wragnle_df, echo=FALSE}
 
@@ -185,16 +199,13 @@ df <- df %>%
   filter(str_detect(Cargo, "Dip")) %>%  # CONTEO DE DIPUTADES x PROVINCIA PARA LABELS
   group_by(codprov) %>% 
   count()
-
-
- 
  
 arg <- get_grid("ARGENTINA") %>% 
   left_join(dipu_label, by = c("code" = "codprov")) %>% 
   mutate(name = str_replace_all(name, 
                                 pattern = " ", 
                                 replacement = "\n"), 
-         name_dip = paste0(name , " (", n , ")"))  # DESCARGO GRILLA DE ARGENTINA PARA GEOFACET
+         name_dip = paste0(name , "\n(", n , ")"))  # DESCARGO GRILLA DE ARGENTINA PARA GEOFACET
   
  
  
@@ -203,7 +214,7 @@ arg <- get_grid("ARGENTINA") %>%
 
 
 
-### DIPUTADES POR PROVINCIA
+### Diputados por provincia
 
 
 ```{r geofacet_DIP, fig.height= 14, fig.width=7}
@@ -220,16 +231,14 @@ dip_pct <- DIP %>%  # DATA PARA PLOT
   summarise(n = n()) %>% 
   mutate(pct = round(n/sum(n)*100,1)) 
 
-
-
 ### GEOFACET - DIPUTADOS 
 
 ggplot(dip_pct) +
   geom_col(aes(pct, '',  fill = aborto_legal), width = 1, alpha = .7)  +
-  scale_fill_manual(values = c("#056e0c", "#62b567", "#941017", "#626c9e", "#000000", "#626c9e")) + #REVISAR PALETA DE COLORES
+  scale_fill_manual(values = colores) + 
   facet_geo(facets = ~ codprov , grid = arg2, label = "name") +
   scale_x_continuous(breaks = c(0,50,100),
-                     labels = c("0","50","100"),
+                     labels = c("0%","50%","100%"),
                      expand = c(0, 0)) + 
   coord_flip() +
   geom_vline(xintercept = 50, color = "black", linetype = "dashed") +
@@ -239,15 +248,16 @@ ggplot(dip_pct) +
        y="", 
        fill = "", 
        caption = "") +
-  theme(axis.ticks.x = element_blank(),
-        axis.text.x = element_blank(), plot.margin = unit(c(0,-2 ,-6,-6), "mm"))  
-
-
+  theme(legend.position = 'top',
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank()
+        # ,plot.margin = unit(c(0,-2 ,-6,-6), "mm")
+        )  
 
 ```
 
 
-### SENADORES POR PROVINCIA
+### Senadores por provincia
 
 ```{r geofacet_SEN, fig.asp= 2}
 arg <- arg %>% 
@@ -266,10 +276,10 @@ sen_pct <- SEN %>% # DATA PARA PLOT
 
 ggplot(sen_pct) +
   geom_col(aes(pct, '',  fill = aborto_legal), width = 1, alpha = .7)  +
-  scale_fill_manual(values = c("#056e0c", "#941017", "#626c9e", "#000000")) + # RESVISAR PALETA
+  scale_fill_manual(values = colores) +
   facet_geo(facets = ~ codprov , grid = arg, label = "name") +
   scale_x_continuous(breaks = c(0,50,100),
-                      labels = c("0","50","100"),
+                      labels = c("0%","50%","100%"),
                       expand = c(0, 0)) + 
   coord_flip() +
   labs(title = "",
@@ -278,7 +288,8 @@ ggplot(sen_pct) +
        y="", 
        fill = "", 
        caption = "") +
-  theme(axis.ticks.x = element_blank(),
+  theme(legend.position = 'top',
+        axis.ticks.x = element_blank(),
         axis.text.x = element_blank()) 
 
 
@@ -286,25 +297,90 @@ ggplot(sen_pct) +
 
 ```
 
+
+
+```{r}
+bloques_df <- df %>% 
+  mutate(Bloque = str_to_title(Bloque),
+         Bloque = str_replace(Bloque,'Pro\\b' , 'PRO'),
+         Bloque = str_replace(Bloque,'Ucr\\b' , 'UCR'),
+         Bloque = case_when(Bloque == "Frente De Izquierda Y De Los Trabajadores" ~ "FIT",
+                            Bloque == "Pts - Frente De Izquierda" ~ "PTS - FIT",
+                            TRUE ~ Bloque ),
+         Bloque = if_else(nchar(Bloque)>20,glue("{substr(Bloque,1,20)}..."),Bloque)) %>% 
+  group_by(Cargo, Bloque,AbortoLegal) %>% 
+  count()
+```
+
+
+### Diputados por bloque
+
+```{r}
+bloques_df %>% 
+  filter(str_detect(Cargo, 'Diputados'), !str_detect(AbortoLegal, 'Caso')) %>% #saco a Massa del grafico
+  ggplot(aes(AbortoLegal, n, fill = AbortoLegal))+
+  geom_col()+
+  scale_fill_manual(values = colores)+
+  scale_y_continuous(breaks= function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  labs(x='',y='') +
+  theme_minimal() +
+  theme(legend.position = 'bottom',
+        # text = element_text(size=7),
+        axis.text.x = element_blank())+
+  facet_wrap(.~Bloque, scales = 'free')
+```
+
+
+### Senadores por bloque
+
+```{r, fig.height= 5, fig.width=10}
+bloques_df %>% 
+  filter(str_detect(Cargo, 'Senadores')) %>% 
+  ggplot(aes(AbortoLegal, n, fill = AbortoLegal))+
+  geom_col()+
+  scale_fill_manual(values = colores)+
+  scale_y_continuous(breaks= function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
+  labs(x='',y='') +
+  theme_minimal() +
+  theme(legend.position = 'bottom',
+        # text = element_text(size=7),
+        axis.text.x = element_blank())+
+  facet_wrap(.~Bloque, scales = 'free')
+```
+
 # Datos Diputados
 
 ```{r}
-table_diputados <- df %>% 
+table_diputados <- df_tabla %>% 
   filter(Cargo == 'Diputados Nacionales') %>% 
   select(Nombre, Genero,Distrito,Bloque,AbortoLegal, FuenteAbortoLegal,twitter)
 
-datatable(table_diputados ,options = list(c(scrollY="200px", scrollX="300px", pageLength = 100)),  filter = 'top')
+datatable(table_diputados ,
+          extensions = 'Buttons',
+          options = list(scrollY="200px", scrollX="300px",
+                         dom = 'Bfrtip',
+                         buttons =list('copy', 'print', list(extend = 'collection',
+                                                             buttons = c('csv', 'excel', 'pdf'),
+                                                             text = 'Descarga'))
+                         ),  filter = 'top')
 
 ```
 
 # Datos Senadores
 
 ```{r}
-table_senadores <- df %>% 
+table_senadores <- df_tabla %>% 
   filter(Cargo == 'Senadores Nacionales') %>% 
   select(Nombre, Genero,Distrito,Bloque,AbortoLegal, FuenteAbortoLegal,twitter)
 
-datatable(table_senadores ,options = list(c(scrollY="200px", scrollX="300px", pageLength = 100)),  filter = 'top')
+datatable(table_senadores ,
+          extensions = 'Buttons',
+          options = list(scrollY="200px", scrollX="300px",
+                         dom = 'Bfrtip',
+                         buttons =list('copy', 'print', list(extend = 'collection',
+                                                             buttons = c('csv', 'excel', 'pdf'),
+                                                             text = 'Descarga'))
+                         ),  filter = 'top')
 
 ```
 
