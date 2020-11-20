@@ -307,7 +307,11 @@ bloques_df <- df %>%
          Bloque = case_when(Bloque == "Frente De Izquierda Y De Los Trabajadores" ~ "FIT",
                             Bloque == "Pts - Frente De Izquierda" ~ "PTS - FIT",
                             TRUE ~ Bloque ),
-         Bloque = if_else(nchar(Bloque)>20,glue("{substr(Bloque,1,20)}..."),Bloque)) %>% 
+         # Bloque = str_replace_all(Bloque, 
+         #                        pattern = " ", 
+         #                        replacement = "\n"),
+         Bloque = if_else(nchar(Bloque)>15,glue("{substr(Bloque,1,15)}..."),Bloque),
+         Bloque = fct_infreq(Bloque)) %>%
   group_by(Cargo, Bloque,AbortoLegal) %>% 
   count()
 ```
@@ -315,7 +319,7 @@ bloques_df <- df %>%
 
 ### Diputados por bloque
 
-```{r}
+```{r fig.height= 5, fig.width=10}
 bloques_df %>% 
   filter(str_detect(Cargo, 'Diputados'), !str_detect(AbortoLegal, 'Caso')) %>% #saco a Massa del grafico
   ggplot(aes(AbortoLegal, n, fill = AbortoLegal))+
@@ -360,7 +364,7 @@ datatable(table_diputados ,
           options = list(scrollY="200px", scrollX="300px",
                          dom = 'Bfrtip',
                          buttons =list('copy', 'print', list(extend = 'collection',
-                                                             buttons = c('csv', 'excel', 'pdf'),
+                                                             buttons = c('csv', 'excel'),
                                                              text = 'Descarga'))
                          ),  filter = 'top')
 
@@ -378,7 +382,7 @@ datatable(table_senadores ,
           options = list(scrollY="200px", scrollX="300px",
                          dom = 'Bfrtip',
                          buttons =list('copy', 'print', list(extend = 'collection',
-                                                             buttons = c('csv', 'excel', 'pdf'),
+                                                             buttons = c('csv', 'excel'),
                                                              text = 'Descarga'))
                          ),  filter = 'top')
 
