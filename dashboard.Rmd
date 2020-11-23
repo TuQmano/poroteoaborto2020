@@ -159,6 +159,7 @@ valueBox(paste0(sen_no$n,' (',sen_no$percent,')'), color = "#a70600")
 
 # Gráficos
 
+
 ## Gráficos{.tabset}
 
 ```{r wragnle_df, echo=FALSE}
@@ -226,19 +227,27 @@ DIP <-   df %>%  # FILTRO DIPUTADOS
   clean_names() %>% 
   filter(str_detect(cargo, "Dip")) 
 
-dip_pct <- DIP %>%  # DATA PARA PLOT 
-  group_by(codprov, aborto_legal) %>% 
-  summarise(n = n()) %>% 
-  mutate(pct = round(n/sum(n)*100,1)) 
 
-### GEOFACET - DIPUTADOS 
+dip_pct <- DIP %>%  # DATA PARA PLOT 
+  left_join(arg, by = c("codprov"= "code")) %>% 
+  group_by(codprov, aborto_legal, name) %>% 
+  summarise(n = n()) %>%
+  group_by(codprov) %>% 
+  mutate(pct = round(n/sum(n)*100,1),
+         name = str_replace_all(name, 
+                                pattern = " ", 
+                                replacement = "\n"), 
+         name = paste0(name, "\n(", sum(n), ")"))
+
+
 
 ggplot(dip_pct) +
   geom_col(aes(pct, '',  fill = aborto_legal), width = 1, alpha = .7)  +
   scale_fill_manual(values = colores) + 
-  facet_geo(facets = ~ codprov , grid = arg2, label = "name") +
-  scale_x_continuous(breaks = c(0,50,100),
-                     labels = c("0%","50%","100%"),
+  facet_geo(facets = ~ codprov , grid = arg2) +
+  geom_text(aes(50, '', label = name), size = 4) +
+  scale_x_continuous(breaks = c(50),
+                     labels = c("50%"),
                      expand = c(0, 0)) + 
   coord_flip() +
   geom_vline(xintercept = 50, color = "black", linetype = "dashed") +
@@ -248,11 +257,17 @@ ggplot(dip_pct) +
        y="", 
        fill = "", 
        caption = "") +
-  theme(legend.position = 'top',
+  theme(legend.position = c(.7,0.2),
+        legend.text = element_text(size = 20),
+        legend.key.size = unit(1, "cm"),
         axis.ticks.x = element_blank(),
-        axis.text.x = element_blank()
+        axis.text.x = element_blank(),
+        strip.background = element_blank(),
+        strip.text.x = element_blank()
         # ,plot.margin = unit(c(0,-2 ,-6,-6), "mm")
-        )  
+  ) +
+  guides(guide_legend("horizontal"))
+
 
 ```
 
@@ -268,8 +283,9 @@ SEN <- df %>%  # FILTRO SENADORES
   filter(str_detect(cargo, "Sen")) 
 
 sen_pct <- SEN %>% # DATA PARA PLOT
-  group_by(distrito, codprov, aborto_legal) %>% 
-  summarise(n = n()) %>% 
+  group_by(codprov, aborto_legal) %>% 
+  summarise(n = n())  %>%  # DATA PARA PLOT 
+  left_join(arg, by = c("codprov"= "code")) %>% 
   mutate(pct = round(n/sum(n)*100,1)) 
 
 # GEOFACET SENADORES 
@@ -277,9 +293,10 @@ sen_pct <- SEN %>% # DATA PARA PLOT
 ggplot(sen_pct) +
   geom_col(aes(pct, '',  fill = aborto_legal), width = 1, alpha = .7)  +
   scale_fill_manual(values = colores) +
-  facet_geo(facets = ~ codprov , grid = arg, label = "name") +
-  scale_x_continuous(breaks = c(0,50,100),
-                      labels = c("0%","50%","100%"),
+  facet_geo(facets = ~ codprov , grid = arg)  +
+  geom_text(aes(50, '', label = name), size = 4) + 
+  scale_x_continuous(breaks = c(50),
+                      labels = c("50%"),
                       expand = c(0, 0)) + 
   coord_flip() +
   labs(title = "",
@@ -288,9 +305,13 @@ ggplot(sen_pct) +
        y="", 
        fill = "", 
        caption = "") +
-  theme(legend.position = 'top',
+  theme(legend.position = c(.7,0.2),
+        legend.text = element_text(size = 20),
+        legend.key.size = unit(1, "cm"),
         axis.ticks.x = element_blank(),
-        axis.text.x = element_blank()) 
+        axis.text.x = element_blank(),
+        strip.background = element_blank(),
+        strip.text.x = element_blank()) 
 
 
 
