@@ -409,7 +409,11 @@ datatable(table_senadores ,
 
 # Nosotres
 
-(Link a la planilla abortera, nuestros contactos, etc.)
+* Natsumi Shokida - [@natsush](https://twitter.com/natsush/)
+
+* Diego Kozlowski - [@diego_koz](https://twitter.com/diego_koz)
+
+* Daiana Serpa - [@Daiitae](https://twitter.com/Daiitae)
 
 * TuQmano - [github.com/tuqmano](https://github.com/tuqmano)
 
