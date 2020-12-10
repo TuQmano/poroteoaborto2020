@@ -48,6 +48,7 @@ df_tabla <- df
 df <- df %>% 
   mutate(AbortoLegal = case_when(AbortoLegal == "Despenalizar" ~ "A Favor",
                                  AbortoLegal == "Se Abstiene"  ~ "Se Abstiene / Caso Especial",
+                                 AbortoLegal == "Ausente" ~ "Se Abstiene / Caso Especial",
                                  AbortoLegal == "Indefinido" |  
                                    AbortoLegal == "Sin Datos"  ~ "Sin Datos / Indefinido",
                                  TRUE ~ AbortoLegal))
@@ -74,18 +75,18 @@ colores <- c('A Favor'='#056e0c', 'En Contra'="#941017","Se Abstiene / Caso Espe
 
 # Inicio
 
-Row {data-height=650}
+
+Row {data-height=100}
 -------------------------------------
 
 ### Cámara de Diputades
 
-```{r}
-# highchart parliament de Dai
-```
-
-Row {data-height=350}
+Row {data-height=400}
 -------------------------------------
-   
+
+
+
+
 ### A favor / Despenalizar
 
 ```{r}
@@ -115,18 +116,15 @@ valueBox(paste0(dip_no$n,' (',dip_no$percent,')'), color = "#a70600")
 ```
 
 
-Row {data-height=650}
+
+Row {data-height=100}
 -------------------------------------
 
 ### Cámara de Senadores
 
-```{r}
-# highchart parliament de Dai
-```
-
-Row {data-height=350}
+Row {data-height=400}
 -------------------------------------
-   
+
 ### A favor / Despenalizar
 
 ```{r}
