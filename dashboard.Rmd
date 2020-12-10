@@ -76,7 +76,7 @@ colores <- c('A Favor'='#056e0c', 'En Contra'="#941017","Se Abstiene / Caso Espe
 # Inicio
 
 
-Row {data-height=100}
+Row {data-height=70}
 -------------------------------------
 
 ### Cámara de Diputades
@@ -117,7 +117,7 @@ valueBox(paste0(dip_no$n,' (',dip_no$percent,')'), color = "#a70600")
 
 
 
-Row {data-height=100}
+Row {data-height=70}
 -------------------------------------
 
 ### Cámara de Senadores
