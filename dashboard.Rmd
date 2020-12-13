@@ -77,8 +77,8 @@ colores1 <- c('#93c47d', "#ea9a99", "#d9d9d9", '#9a9dab')
 ```
 
 
-# Inicio
-
+Inicio
+=======================================================================
 
 Row {data-height=70}
 -------------------------------------
@@ -163,10 +163,13 @@ dip_no <- conteo_diputados %>%
 valueBox(paste0(dip_no$n,' (',dip_no$percent,')'), color = "#a70600")
 ```
 
-# Gráficos
+
+Por Provincia {data-navmenu="Gráficos"}
+=======================================================================
 
 
-## Gráficos{.tabset}
+Column{.tabset}
+-----------------------------------------------------------------------
 
 ```{r wragnle_df, echo=FALSE}
 
@@ -335,6 +338,11 @@ bloques_df <- df %>%
                             TRUE ~ "OTROS"))
 ```
 
+Por Bloque {data-navmenu="Gráficos"}
+=======================================================================
+
+Column
+-----------------------------------------------------------------------
 
 ### Diputados por bloque
 
@@ -388,6 +396,7 @@ highchart() %>%
                                   style = list(fontSize = "18px",
                                                textOutline=0)
                                   )) %>%
+  # hc_caption(text = "Datos del poroteo colectivo de @ecofeminita") %>%
   hc_add_theme(hc_theme_elementary()) %>% 
   hc_exporting(enabled = TRUE,
                  filename = "diputados")
@@ -456,12 +465,149 @@ highchart() %>%
                                   style = list(fontSize = "18px",
                                                textOutline=0)
                                   )) %>%
+  # hc_caption(text = "Datos del poroteo colectivo de @ecofeminita") %>%
   hc_add_theme(hc_theme_elementary()) %>% 
   hc_exporting(enabled = TRUE,
-                 filename = "senadores")
+               filename = "senadores")
 ```
 
-### Voto según género y edad
+Por Género y Edad {data-navmenu="Gráficos"}
+=======================================================================
+
+Column {.tabset}
+-----------------------------------------------------------------------
+
+### Votos por Género
+
+<div style='display:flex; flex-direction:row; justify-content:space-evenly;'>
+
+<div style='border-right-style: solid;
+  border-right-color: #d9d9d9;
+  border-right-width: 1px;'>
+```{r message=FALSE, warning=FALSE}
+genero_dip_df <- df %>% 
+  filter(str_detect(Cargo, 'Diputados'), !str_detect(AbortoLegal, 'Caso')) %>%
+  count(Genero, AbortoLegal) %>% 
+  group_by(Genero) %>% 
+  mutate(Total = sum(n)) %>% 
+  ungroup() %>% 
+  mutate(prop = round((n/Total)*100, 0)) %>% 
+  pivot_wider(id_cols = AbortoLegal,
+              names_from = Genero,
+              values_from = prop)
+
+highchart() %>%
+  hc_chart(type = "bar") %>%
+  hc_xAxis(categories = genero_dip_df$AbortoLegal,
+           title = list(text = "")) %>%
+  hc_yAxis(title = list(text = "")) %>%
+  hc_subtitle(text = "RELATIVO AL VOTO",
+              align = "left",
+              style = list(color = "#2b908f", 
+                           fontWeight = "bold")) %>% 
+  hc_title(text = "Diputades por Género",
+           align = "left",
+           style = list(fontSize = "18px")) %>%
+  hc_tooltip(crosshairs = TRUE,
+             borderWidth = 5) %>% 
+  hc_legend(align = "left", 
+            verticalAlign = "top",
+            reversed = FALSE) %>% 
+  hc_add_series(data=genero_dip_df$Mujer,
+                name="Mujer",
+                showInLegend=T,
+                color="#7B0D69",
+                dataLabels = list(enabled = TRUE,
+                                  format = "{y}%",
+                                  inside = TRUE,
+                                  align = "right",
+                                  # color = "#7B0D69",
+                                  borderColor = "#000000",
+                                  style = list(fontSize = "15px",
+                                               textOutline=0)
+                                  )) %>% 
+  hc_add_series(data=genero_dip_df$`Varón`,
+                name="Varón",
+                showInLegend=T,
+                color=colores1[3],
+                dataLabels = list(enabled = TRUE,
+                                  format = "{y}%",
+                                  inside = TRUE,
+                                  align = "right",
+                                  # color = colores1[3],
+                                  borderColor = "#000000",
+                                  style = list(fontSize = "15px",
+                                               textOutline=0)
+                                  )) %>%
+  # hc_caption(text = "Datos del poroteo colectivo de @ecofeminita") %>%
+  hc_add_theme(hc_theme_elementary())
+```
+</div>
+
+<div>
+```{r message=FALSE, warning=FALSE}
+genero_sen_df <- df %>% 
+  filter(str_detect(Cargo, 'Senadores')) %>% 
+  count(Genero, AbortoLegal) %>% 
+  group_by(Genero) %>% 
+  mutate(Total = sum(n)) %>% 
+  ungroup() %>% 
+  mutate(prop = round((n/Total)*100, 0)) %>% 
+  pivot_wider(id_cols = AbortoLegal,
+              names_from = Genero,
+              values_from = prop)
+
+highchart() %>%
+  hc_chart(type = "bar") %>%
+  hc_xAxis(categories = genero_sen_df$AbortoLegal,
+           title = list(text = "")) %>%
+  hc_yAxis(title = list(text = "")) %>%
+  hc_subtitle(text = "RELATIVO AL VOTO",
+              align = "left",
+              style = list(color = "#2b908f", 
+                           fontWeight = "bold")) %>% 
+  hc_title(text = "Senadores por Género",
+           align = "left",
+           style = list(fontSize = "18px")) %>%
+  hc_tooltip(crosshairs = TRUE,
+             borderWidth = 5) %>% 
+  hc_legend(align = "left", 
+            verticalAlign = "top",
+            reversed = FALSE) %>% 
+  hc_add_series(data=genero_sen_df$Mujer,
+                name="Mujer",
+                showInLegend=T,
+                color="#7B0D69",
+                dataLabels = list(enabled = TRUE,
+                                  format = "{y}%",
+                                  inside = TRUE,
+                                  align = "right",
+                                  # color = "#7B0D69",
+                                  borderColor = "#000000",
+                                  style = list(fontSize = "15px",
+                                               textOutline=0)
+                                  )) %>% 
+  hc_add_series(data=genero_sen_df$`Varón`,
+                name="Varón",
+                showInLegend=T,
+                color=colores1[3],
+                dataLabels = list(enabled = TRUE,
+                                  format = "{y}%",
+                                  inside = TRUE,
+                                  align = "right",
+                                  # color = colores1[3],
+                                  borderColor = "#000000",
+                                  style = list(fontSize = "15px",
+                                               textOutline=0)
+                                  )) %>%
+  # hc_caption(text = "Datos del poroteo colectivo de @ecofeminita") %>%
+  hc_add_theme(hc_theme_elementary())
+```
+</div>
+
+</div>
+
+### Voto por Género y Edad
 
 ```{r message=FALSE, warning=FALSE}
 binomial_smooth <- function(...) {
@@ -490,9 +636,8 @@ ggplotly(plt, tooltip = c('text'))
 ```
 
 
-Row {data-height=600}
-
-# Datos Diputados
+Datos Diputados
+=======================================================================
 
 ```{r}
 table_diputados <- df_tabla %>% 
@@ -510,9 +655,9 @@ datatable(table_diputados ,
 
 ```
 
+Datos Senadores
+=======================================================================
 
-
-# Datos Senadores
 ```{r}
 table_senadores <- df_tabla %>% 
   filter(Cargo == 'Senadores Nacionales') %>% 
@@ -529,7 +674,8 @@ datatable(table_senadores ,
 
 ```
 
-# Nosotres
+Nosotres
+=======================================================================
 
 * Natsumi Shokida - [@natsush](https://twitter.com/natsush/)
 

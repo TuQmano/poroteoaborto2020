@@ -107,4 +107,33 @@ fieldset[disabled] .navbar-inverse .btn-link:hover,
 fieldset[disabled] .navbar-inverse .btn-link:focus {
   color: #cccccc;
 }
-                  
+.dropdown-menu > li > a:focus {
+  text-decoration: none;
+  color: #ffffff;
+  background-color: #00a759;
+}
+.dropdown-menu > .active > a:focus {
+  color: #ffffff;
+  text-decoration: none;
+  outline: 0;
+  background-color: #00a759;
+}
+.nav.nav-tabs > li.dropdown.active.open > a, 
+.nav.nav-tabs > li.dropdown.active.open > ul.dropdown-menu a:hover,
+.nav.nav-tabs > li.dropdown.open > a, 
+.nav.nav-tabs > li.dropdown.open > ul.dropdown-menu a:hover
+{
+  color: #fff;
+  background-color: #00a759;
+  border-color: #fff;
+}
+.nav.nav-tabs > li.dropdown.active.open > a span.caret 
+{
+  border-top-color: #fff;
+  border-bottom-color: #fff;}
+
+.open > .dropdown-toggle.btn-primary.focus {
+  color: #ffffff;
+  background-color: #00A759;
+  border-color: #93c47d;
+}
