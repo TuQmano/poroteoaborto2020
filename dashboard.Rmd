@@ -83,7 +83,9 @@ colores1 <- c('#93c47d', "#ea9a99", "#d9d9d9", '#9a9dab')
 Row {data-height=70}
 -------------------------------------
 
-### Cámara de Senadores
+## Cámara de Senadores
+ <font size="6"> Cámara de Senadores</font>
+
 
 Row {data-height=400}
 -------------------------------------
@@ -123,7 +125,9 @@ valueBox(paste0(sen_no$n,' (',sen_no$percent,')'), color = "#a70600")
 Row {data-height=70}
 -------------------------------------
 
-### Cámara de Diputades
+## Cámara de Diputades
+
+ <font size="6"> Cámara de Diputades</font>
 
 Row {data-height=400}
 -------------------------------------
@@ -470,7 +474,8 @@ plt <- df %>%
   mutate(a_favor = case_when(AbortoLegal=='A Favor' ~ 1,
                              AbortoLegal=='En Contra' ~ 0)) %>%
   ggplot(aes(edad, a_favor, color = Genero))+
-  geom_point(aes(text = paste(Nombre,
+  geom_jitter(alpha=0.75,width = 0.5,
+              height = 0.1,aes(text = paste(Nombre,
                               '<br>Edad:',edad,
                               '<br>Cargo:',Cargo,
                               '<br>Partido:',Partido,
@@ -485,7 +490,9 @@ ggplotly(plt, tooltip = c('text'))
 ```
 
 
-# Datos Diputados {.no-mobile}
+Row {data-height=600}
+
+# Datos Diputados
 
 ```{r}
 table_diputados <- df_tabla %>% 
@@ -494,7 +501,7 @@ table_diputados <- df_tabla %>%
 
 datatable(table_diputados ,
           extensions = 'Buttons',
-          options = list(scrollY="200px", scrollX="300px",
+          options = list(scrollY="600px", scrollX="300px",
                          dom = 'Bfrtip',
                          buttons =list('copy', 'print', list(extend = 'collection',
                                                              buttons = c('csv', 'excel'),
@@ -503,8 +510,9 @@ datatable(table_diputados ,
 
 ```
 
-# Datos Senadores {.no-mobile}
 
+
+# Datos Senadores
 ```{r}
 table_senadores <- df_tabla %>% 
   filter(Cargo == 'Senadores Nacionales') %>% 
@@ -512,7 +520,7 @@ table_senadores <- df_tabla %>%
 
 datatable(table_senadores ,
           extensions = 'Buttons',
-          options = list(scrollY="200px", scrollX="300px",
+          options = list(scrollY="600px", scrollX="300px",
                          dom = 'Bfrtip',
                          buttons =list('copy', 'print', list(extend = 'collection',
                                                              buttons = c('csv', 'excel'),
