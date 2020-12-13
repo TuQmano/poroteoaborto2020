@@ -469,17 +469,17 @@ plt <- df %>%
   filter(AbortoLegal %in% c('A Favor', 'En Contra')) %>% 
   mutate(a_favor = case_when(AbortoLegal=='A Favor' ~ 1,
                              AbortoLegal=='En Contra' ~ 0)) %>%
-  ggplot(aes(edad, a_favor, color = Genero, text = paste(Nombre,
-                                                          '<br>Edad:',edad,
-                                                         '<br>Cargo:',Cargo,
-                                                         '<br>Partido:',Partido,
-                                                         '<br>Distrito:',Distrito)))+
-  geom_point()+
+  ggplot(aes(edad, a_favor, color = Genero))+
+  geom_point(aes(text = paste(Nombre,
+                              '<br>Edad:',edad,
+                              '<br>Cargo:',Cargo,
+                              '<br>Partido:',Partido,
+                              '<br>Distrito:',Distrito)))+
   binomial_smooth()+
   theme_minimal()+
   theme(legend.position = 'bottom')+
   scale_y_continuous(name = '', breaks =c(0,1), labels =c('En contra','A favor') )+
-  labs(x= 'Edad', title = 'Probabilidad de votar a favor', subtitle = 'según edad y género')  
+  labs(x= 'Edad', title = 'Probabilidad de votar a favor, según edad y género')  
   
 ggplotly(plt, tooltip = c('text'))
 ```
