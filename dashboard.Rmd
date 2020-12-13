@@ -83,6 +83,46 @@ colores1 <- c('#93c47d', "#ea9a99", "#d9d9d9", '#9a9dab')
 Row {data-height=70}
 -------------------------------------
 
+### Cámara de Senadores
+
+Row {data-height=400}
+-------------------------------------
+
+### A favor / Despenalizar
+
+```{r}
+sen_si <- conteo_senadores %>% 
+  filter(AbortoLegal == 'A Favor')
+
+valueBox(paste0(sen_si$n,' (',sen_si$percent,')'), color = "#00A759")
+```
+
+
+### 
+
+```{r}
+conteo_senadores %>% 
+  filter(!AbortoLegal %in% c('A Favor', 'En Contra')) %>% 
+  kable('html', col.names = NULL) %>%
+  kable_styling(font_size = 18)
+```
+
+
+### En contra
+
+```{r}
+sen_no <- conteo_senadores %>% 
+  filter(AbortoLegal == 'En Contra')
+
+valueBox(paste0(sen_no$n,' (',sen_no$percent,')'), color = "#a70600")
+```
+
+
+
+
+Row {data-height=70}
+-------------------------------------
+
 ### Cámara de Diputades
 
 Row {data-height=400}
@@ -118,46 +158,6 @@ dip_no <- conteo_diputados %>%
 
 valueBox(paste0(dip_no$n,' (',dip_no$percent,')'), color = "#a70600")
 ```
-
-
-
-Row {data-height=70}
--------------------------------------
-
-### Cámara de Senadores
-
-Row {data-height=400}
--------------------------------------
-
-### A favor / Despenalizar
-
-```{r}
-sen_si <- conteo_senadores %>% 
-  filter(AbortoLegal == 'A Favor')
-
-valueBox(paste0(sen_si$n,' (',sen_si$percent,')'), color = "#00A759")
-```
-
-
-### 
-
-```{r}
-conteo_senadores %>% 
-  filter(!AbortoLegal %in% c('A Favor', 'En Contra')) %>% 
-  kable('html', col.names = NULL) %>%
-  kable_styling(font_size = 18)
-```
-
-
-### En contra
-
-```{r}
-sen_no <- conteo_senadores %>% 
-  filter(AbortoLegal == 'En Contra')
-
-valueBox(paste0(sen_no$n,' (',sen_no$percent,')'), color = "#a70600")
-```
-
 
 # Gráficos
 
@@ -216,7 +216,7 @@ arg <- get_grid("ARGENTINA") %>%
 ```
 
 
-### Diputados por provincia
+### Diputados por provincia {.no-mobile}
 
 
 ```{r geofacet_DIP, fig.height= 14, fig.width=7}
@@ -239,7 +239,6 @@ dip_pct <- DIP %>%  # DATA PARA PLOT
                                 pattern = " ", 
                                 replacement = "\n"), 
          name = paste0(name, "\n(", sum(n), ")"))
-
 
 
 ggplot(dip_pct) +
@@ -273,7 +272,7 @@ ggplot(dip_pct) +
 ```
 
 
-### Senadores por provincia
+### Senadores por provincia {.no-mobile}
 
 ```{r geofacet_SEN, fig.asp= 2}
 arg <- arg %>% 
@@ -328,21 +327,8 @@ bloques_df <- df %>%
                             str_detect(Bloque, regex("ucr|uni.n c.vica radical", TRUE)) ~ "UCR",
                             str_detect(Bloque, regex("JUSTICIALISTA", TRUE)) ~ "JUSTICIALISTA",
                             str_detect(Bloque, regex("COALICIÓN C.VICA", TRUE)) ~ "COALICIÓN CÍVICA",
-                            str_detect(Bloque, regex("FRENTE DE IZQUIERDA", TRUE)) ~ "FIT - PTS",
+                            str_detect(Bloque, regex("FRENTE DE IZQUIERDA", TRUE)) ~ "FIT",
                             TRUE ~ "OTROS"))
-  # mutate(Bloque = str_to_title(Bloque),
-  #        Bloque = str_replace(Bloque,'Pro\\b' , 'PRO'),
-  #        Bloque = str_replace(Bloque,'Ucr\\b' , 'UCR'),
-  #        Bloque = case_when(Bloque == "Frente De Izquierda Y De Los Trabajadores" ~ "FIT",
-  #                           Bloque == "Pts - Frente De Izquierda" ~ "PTS - FIT",
-  #                           TRUE ~ Bloque ),
-  #        # Bloque = str_replace_all(Bloque, 
-  #        #                        pattern = " ", 
-  #        #                        replacement = "\n"),
-  #        Bloque = if_else(nchar(Bloque)>15,glue("{substr(Bloque,1,15)}..."),Bloque),
-  #        Bloque = fct_infreq(Bloque)) %>%
-  # group_by(Cargo, Bloque,AbortoLegal) %>% 
-  # count()
 ```
 
 
@@ -366,7 +352,7 @@ highchart() %>%
   #          style = list(fontSize = "30px")) %>% 
   hc_tooltip(crosshairs = TRUE,
              borderWidth = 5) %>% 
-  hc_legend(align = "left", 
+  hc_legend(align = "left",
             verticalAlign = "top") %>% 
   hc_add_series(data=bloques_dip_df$`A Favor`,
                 name="A Favor",
@@ -375,25 +361,18 @@ highchart() %>%
                 dataLabels = list(enabled = TRUE,
                                   color = colores1[1],
                                   borderColor = "#000000",
-                                  style = list(fontSize = "20px")
+                                  style = list(fontSize = "18px",
+                                               textOutline=0)
                                   )) %>%
-  hc_add_series(data=bloques_dip_df$`Se Abstiene / Caso Especial`,
-                name="Se Abstiene / Caso Especial",
+  hc_add_series(data=bloques_dip_df$`Abstención/Ausente`,
+                name="Abstención/Ausente",
                 showInLegend=T,
                 color=colores1[3],
                 dataLabels = list(enabled = TRUE,
-                                  color = colores1[3],
-                                  borderColor = "#000000",
-                                  style = list(fontSize = "20px")
-                                  )) %>%
-  hc_add_series(data=bloques_dip_df$`Sin Datos / Indefinido`,
-                name="Sin Datos / Indefinido",
-                showInLegend=T,
-                color=colores1[4],
-                dataLabels = list(enabled = TRUE,
                                   color = colores1[4],
                                   borderColor = "#000000",
-                                  style = list(fontSize = "20px")
+                                  style = list(fontSize = "18px",
+                                               textOutline=0)
                                   )) %>%
   hc_add_series(data=bloques_dip_df$`En Contra`,
                 name="En Contra",
@@ -402,25 +381,12 @@ highchart() %>%
                 dataLabels = list(enabled = TRUE,
                                   color = colores1[2],
                                   borderColor = "#000000",
-                                  style = list(fontSize = "20px")
+                                  style = list(fontSize = "18px",
+                                               textOutline=0)
                                   )) %>%
   hc_add_theme(hc_theme_elementary()) %>% 
   hc_exporting(enabled = TRUE,
-                 filename = "plot3")
-
-# bloques_df %>% 
-#   filter(str_detect(Cargo, 'Diputados'), !str_detect(AbortoLegal, 'Caso')) %>%  #saco a Massa del grafico
-# ggplot(aes(AbortoLegal, n, fill = AbortoLegal))+
-# geom_col()+
-# scale_fill_manual(values = colores)+
-# scale_y_continuous(breaks= function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
-# labs(x='',y='') +
-# theme_minimal() +
-# theme(legend.position = 'bottom',
-#       # text = element_text(size=7),
-#       axis.text.x = element_blank())+
-# facet_wrap(.~Bloque, scales = 'free')
-
+                 filename = "diputados")
 ```
 
 
@@ -453,16 +419,18 @@ highchart() %>%
                 dataLabels = list(enabled = TRUE,
                                   color = colores1[1],
                                   borderColor = "#000000",
-                                  style = list(fontSize = "20px")
+                                  style = list(fontSize = "18px",
+                                               textOutline=0)
                                   )) %>%
-  hc_add_series(data=bloques_sen_df$`Se Abstiene / Caso Especial`,
-                name="Se Abstiene / Caso Especial",
+  hc_add_series(data=bloques_sen_df$`Abstención/Ausente`,
+                name="Abstención/Ausente",
                 showInLegend=T,
                 color=colores1[3],
                 dataLabels = list(enabled = TRUE,
                                   color = colores1[3],
                                   borderColor = "#000000",
-                                  style = list(fontSize = "20px")
+                                  style = list(fontSize = "18px",
+                                               textOutline=0)
                                   )) %>%
   hc_add_series(data=bloques_sen_df$`Sin Datos / Indefinido`,
                 name="Sin Datos / Indefinido",
@@ -471,7 +439,8 @@ highchart() %>%
                 dataLabels = list(enabled = TRUE,
                                   color = colores1[4],
                                   borderColor = "#000000",
-                                  style = list(fontSize = "20px")
+                                  style = list(fontSize = "18px",
+                                               textOutline=0)
                                   )) %>%
   hc_add_series(data=bloques_sen_df$`En Contra`,
                 name="En Contra",
@@ -480,27 +449,43 @@ highchart() %>%
                 dataLabels = list(enabled = TRUE,
                                   color = colores1[2],
                                   borderColor = "#000000",
-                                  style = list(fontSize = "20px")
+                                  style = list(fontSize = "18px",
+                                               textOutline=0)
                                   )) %>%
   hc_add_theme(hc_theme_elementary()) %>% 
   hc_exporting(enabled = TRUE,
-                 filename = "plot3")
-
-# bloques_df %>% 
-#   filter(str_detect(Cargo, 'Senadores')) %>% 
-#   ggplot(aes(AbortoLegal, n, fill = AbortoLegal))+
-#   geom_col()+
-#   scale_fill_manual(values = colores)+
-#   scale_y_continuous(breaks= function(x) unique(floor(pretty(seq(0, (max(x) + 1) * 1.1)))))+
-#   labs(x='',y='') +
-#   theme_minimal() +
-#   theme(legend.position = 'bottom',
-#         # text = element_text(size=7),
-#         axis.text.x = element_blank())+
-#   facet_wrap(.~Bloque, scales = 'free')
+                 filename = "senadores")
 ```
 
-# Datos Diputados
+### Voto según género y edad
+
+```{r message=FALSE, warning=FALSE}
+binomial_smooth <- function(...) {
+  geom_smooth(method = "glm", method.args = list(family = "binomial"),se = FALSE, ...)
+}
+
+
+plt <- df %>%
+  filter(AbortoLegal %in% c('A Favor', 'En Contra')) %>% 
+  mutate(a_favor = case_when(AbortoLegal=='A Favor' ~ 1,
+                             AbortoLegal=='En Contra' ~ 0)) %>%
+  ggplot(aes(edad, a_favor, color = Genero, text = paste(Nombre,
+                                                          '<br>Edad:',edad,
+                                                         '<br>Cargo:',Cargo,
+                                                         '<br>Partido:',Partido,
+                                                         '<br>Distrito:',Distrito)))+
+  geom_point()+
+  binomial_smooth()+
+  theme_minimal()+
+  theme(legend.position = 'bottom')+
+  scale_y_continuous(name = '', breaks =c(0,1), labels =c('En contra','A favor') )+
+  labs(x= 'Edad', title = 'Probabilidad de votar a favor', subtitle = 'según edad y género')  
+  
+ggplotly(plt, tooltip = c('text'))
+```
+
+
+# Datos Diputados {.no-mobile}
 
 ```{r}
 table_diputados <- df_tabla %>% 
@@ -518,7 +503,7 @@ datatable(table_diputados ,
 
 ```
 
-# Datos Senadores
+# Datos Senadores {.no-mobile}
 
 ```{r}
 table_senadores <- df_tabla %>% 
