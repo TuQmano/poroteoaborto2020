@@ -82,13 +82,16 @@ colores1 <- c('#93c47d', "#ea9a99", "#d9d9d9", '#9a9dab')
 Inicio
 =======================================================================
 
-<font size="3"> [![](www/ecofemilogo.png){width=30px}](economiafeminita.com/) Un proyecto de [<span style="color: green;">Economia Feminita</span>](economiafeminita.com/) </font>
+<font size="3"> [![](www/ecofemilogo.png){width=30px}](https://economiafeminita.com/) Un proyecto de [<span style="color: green;">Economia Feminita</span>](https://economiafeminita.com/) </font>
 
-<font size="3"> [![](www/gsheetlogo.png){width=20px}](bit.ly/poroteoaborto2020) Datos de la [<span style="color: green;">planilla colaborativa</span>](bit.ly/poroteoaborto2020) </font>
+<font size="3"> [![](www/gsheetlogo.png){width=20px}](https://bit.ly/poroteoaborto2020) Datos de la [<span style="color: green;">planilla colaborativa</span>](https://bit.ly/poroteoaborto2020) </font>
 
-<font size="3"> [![](www/lasdesistemas.svg){width=30px}](https://poroteosenado.herokuapp.com/) Resumen del poroteo por [<span style="color: green;">[LAS] de sistemas</span>](https://lasdesistemas.org/)  </font>
+<font size="3"> [![](www/lasdesistemas.svg){width=30px}](https://poroteosenado.herokuapp.com/) [<span style="color: green;">Resumen del poroteo</span>](https://poroteosenado.herokuapp.com/) por [<span style="color: green;">[LAS] de sistemas</span>](https://lasdesistemas.org/)  </font>
 
 <br>
+<hr>
+
+## Cámara de Senadores
 
 <font size="7"> Cámara de Senadores</font>
 <br>
@@ -124,10 +127,12 @@ sen_no <- conteo_senadores %>%
 
 valueBox(paste0(sen_no$n,' (',sen_no$percent,')'), color = "#a70600")
 ```
+                                                                 
+<br>
+<hr>
+                                                              
+## Cámara de Diputades
 
-## 
-<br><br>
--------------------------------------
 <font size="7"> Cámara de Diputades</font>
 
 Row {data-height=400}
