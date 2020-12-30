@@ -50,8 +50,8 @@ df_tabla <- df
 
 df <- df %>% 
   mutate(AbortoLegal = case_when(AbortoLegal == "Despenalizar" ~ "A Favor",
-                                 AbortoLegal == "Se Abstiene"  ~ "Se Abstiene / Caso Especial",
-                                 AbortoLegal == "Ausente" ~ "Se Abstiene / Caso Especial",
+                                 #AbortoLegal == "Se Abstiene"  ~ "Se Abstiene / Caso Especial",
+                                 #AbortoLegal == "Ausente" ~ "Se Abstiene / Caso Especial",
                                  AbortoLegal == "Indefinido" |  
                                    AbortoLegal == "Sin Datos"  ~ "Sin Datos / Indefinido",
                                  TRUE ~ AbortoLegal))
@@ -72,7 +72,13 @@ conteo_senadores <- df %>%
 
 
 ```{r colores, include=FALSE}
-colores <- c('A Favor'='#93c47d', 'En Contra'="#ea9a99","Se Abstiene / Caso Especial"="#d9d9d9", "Sin Datos / Indefinido"='#9a9dab')
+# colores <- c('A Favor'='#93c47d', 'En Contra'="#ea9a99",
+#              "Se Abstiene / Caso Especial"="#d9d9d9", "Sin Datos / Indefinido"='#9a9dab')
+
+colores <- c('A Favor'='#93c47d', 'En Contra'="#ea9a99",
+             "Se Abstiene"="#d9d9d9",
+             "Ausente"="#d9d9d9",
+             "Sin Datos / Indefinido"='#9a9dab')
 
 # A Favor - En Contra - Se Abstiene/Caso Especial - Sin Datos / Indefinido
 colores1 <- c('#93c47d', "#ea9a99", "#d9d9d9", '#9a9dab')
